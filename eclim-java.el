@@ -377,7 +377,7 @@ a java type that can be imported."
   (interactive)
   (eclim/with-results imports ("java_import" "-n" ("-p" (cdr (eclim--java-identifier-at-point))))
 		      (eclim--java-organize-imports (eclim/execute-command "java_import_order" "-p")
-						    (list (eclim--completing-read "Import: " imports)))))
+						    (list (eclim--completing-read "Import: " (append imports nil))))))
 
 (defun eclim-java-import-missing ()
   "Checks the current file for missing imports and prompts the
@@ -427,6 +427,13 @@ method."
 			(indent-region start (point)))))
 
 (defun eclim--java-complete-internal (completion-list)
+  (setq completion-list 
+	(mapcar
+	 (lambda (str)
+	   (replace-regexp-in-string "\\( : \\w+ \\)?- \\w+$" "" str))
+	 (list (eclim--completing-read 
+		"Completion: "
+		completion-list))))
   (let* ((window (get-buffer-window "*Completions*" 0))
 	 (c (eclim--java-identifier-at-point))
 	 (beg (car c))
